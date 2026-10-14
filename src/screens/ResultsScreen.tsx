@@ -120,9 +120,12 @@ export function ResultsScreen({ result, onBack, onSpeciesSelect }: ResultsScreen
                     <span className="text-sm font-medium text-slate-700 text-right">{localNames}</span>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <span className="text-sm text-slate-500">Confidence</span>
+                    <span className="text-sm text-slate-500">Visual match score</span>
                     <span className="text-sm font-bold text-teal-700">{result.confidence}%</span>
                   </div>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    This score comes from image color and shape rules. It is not a verified probability that the species is correct.
+                  </p>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100">
                   <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-100">
