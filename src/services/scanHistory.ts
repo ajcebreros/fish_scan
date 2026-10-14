@@ -1,4 +1,5 @@
 import type { ScanResult } from '@/types';
+import { FISH_DATABASE } from '@/data/fishDatabase';
 
 const STORAGE_KEY = 'fishlens_scan_history';
 const MAX_HISTORY = 50;
@@ -7,7 +8,9 @@ export function getScanHistory(): ScanResult[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
-    return JSON.parse(raw) as ScanResult[];
+    const history = JSON.parse(raw) as ScanResult[];
+    const supportedSpecies = new Set(FISH_DATABASE.map((species) => species.id));
+    return history.filter((scan) => supportedSpecies.has(scan.primaryMatch.id));
   } catch {
     return [];
   }

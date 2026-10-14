@@ -22,11 +22,11 @@ const SPECIES_PROFILES: Record<
     shouldHaveSpots: boolean;
   }
 > = {
-  bangus: {
-    dominantColors: ['silver', 'blue'],
+  'skipjack-tuna': {
+    dominantColors: ['blue', 'silver'],
     bodyShape: 'elongated',
-    preferredAspect: [1.8, 3.8],
-    preferredCoverage: [0.18, 0.45],
+    preferredAspect: [1.8, 3.4],
+    preferredCoverage: [0.18, 0.46],
     shouldHaveSilver: true,
     shouldHaveYellow: false,
     shouldHaveRed: false,
@@ -42,16 +42,6 @@ const SPECIES_PROFILES: Record<
     shouldHaveRed: false,
     shouldHaveSpots: false,
   },
-  'skipjack-tuna': {
-    dominantColors: ['blue', 'silver'],
-    bodyShape: 'elongated',
-    preferredAspect: [1.8, 3.4],
-    preferredCoverage: [0.2, 0.5],
-    shouldHaveSilver: true,
-    shouldHaveYellow: false,
-    shouldHaveRed: false,
-    shouldHaveSpots: false,
-  },
   'bigeye-tuna': {
     dominantColors: ['blue', 'yellow', 'silver'],
     bodyShape: 'deep',
@@ -62,85 +52,75 @@ const SPECIES_PROFILES: Record<
     shouldHaveRed: false,
     shouldHaveSpots: false,
   },
-  'lapu-lapu': {
-    dominantColors: ['red', 'green', 'gray'],
-    bodyShape: 'deep',
-    preferredAspect: [0.9, 1.9],
-    preferredCoverage: [0.22, 0.52],
-    shouldHaveSilver: false,
-    shouldHaveYellow: false,
-    shouldHaveRed: true,
-    shouldHaveSpots: true,
-  },
-  'maya-maya': {
-    dominantColors: ['red', 'pink', 'silver'],
-    bodyShape: 'deep',
-    preferredAspect: [0.9, 1.7],
-    preferredCoverage: [0.22, 0.5],
-    shouldHaveSilver: true,
-    shouldHaveYellow: false,
-    shouldHaveRed: true,
-    shouldHaveSpots: false,
-  },
-  galunggong: {
-    dominantColors: ['silver', 'blue', 'green'],
+  'round-scad': {
+    dominantColors: ['silver', 'blue'],
     bodyShape: 'elongated',
-    preferredAspect: [1.9, 4.2],
-    preferredCoverage: [0.2, 0.42],
+    preferredAspect: [1.5, 3.4],
+    preferredCoverage: [0.16, 0.42],
     shouldHaveSilver: true,
     shouldHaveYellow: false,
     shouldHaveRed: false,
     shouldHaveSpots: false,
   },
-  tamban: {
-    dominantColors: ['silver', 'blue', 'green'],
+  'eastern-little-tuna': {
+    dominantColors: ['blue', 'silver', 'gray'],
     bodyShape: 'elongated',
-    preferredAspect: [2.0, 4.6],
-    preferredCoverage: [0.18, 0.4],
+    preferredAspect: [1.5, 3.1],
+    preferredCoverage: [0.18, 0.48],
     shouldHaveSilver: true,
     shouldHaveYellow: false,
     shouldHaveRed: false,
     shouldHaveSpots: false,
   },
-  tilapia: {
-    dominantColors: ['green', 'gray'],
+  'narrow-barred-spanish-mackerel': {
+    dominantColors: ['silver', 'blue'],
+    bodyShape: 'elongated',
+    preferredAspect: [2.0, 4.0],
+    preferredCoverage: [0.18, 0.5],
+    shouldHaveSilver: true,
+    shouldHaveYellow: false,
+    shouldHaveRed: false,
+    shouldHaveSpots: false,
+  },
+  'blue-marlin': {
+    dominantColors: ['blue', 'silver'],
+    bodyShape: 'elongated',
+    preferredAspect: [2.2, 5.0],
+    preferredCoverage: [0.25, 0.6],
+    shouldHaveSilver: true,
+    shouldHaveYellow: false,
+    shouldHaveRed: false,
+    shouldHaveSpots: false,
+  },
+  'emperor-fish': {
+    dominantColors: ['silver', 'yellow', 'gray'],
     bodyShape: 'deep',
     preferredAspect: [0.9, 1.8],
     preferredCoverage: [0.24, 0.54],
-    shouldHaveSilver: false,
-    shouldHaveYellow: false,
-    shouldHaveRed: false,
-    shouldHaveSpots: false,
-  },
-  talakitok: {
-    dominantColors: ['silver', 'blue', 'green'],
-    bodyShape: 'deep',
-    preferredAspect: [1.1, 2.3],
-    preferredCoverage: [0.22, 0.54],
-    shouldHaveSilver: true,
-    shouldHaveYellow: false,
-    shouldHaveRed: false,
-    shouldHaveSpots: false,
-  },
-  pompano: {
-    dominantColors: ['silver', 'yellow'],
-    bodyShape: 'deep',
-    preferredAspect: [1.0, 1.8],
-    preferredCoverage: [0.25, 0.56],
     shouldHaveSilver: true,
     shouldHaveYellow: true,
     shouldHaveRed: false,
     shouldHaveSpots: false,
   },
-  butanding: {
-    dominantColors: ['blue', 'gray', 'white'],
-    bodyShape: 'balanced',
-    preferredAspect: [0.7, 1.4],
-    preferredCoverage: [0.32, 0.68],
+  grouper: {
+    dominantColors: ['green', 'gray', 'red'],
+    bodyShape: 'deep',
+    preferredAspect: [0.8, 1.8],
+    preferredCoverage: [0.22, 0.54],
     shouldHaveSilver: false,
     shouldHaveYellow: false,
-    shouldHaveRed: false,
+    shouldHaveRed: true,
     shouldHaveSpots: true,
+  },
+  'northern-red-snapper': {
+    dominantColors: ['red', 'silver', 'gray'],
+    bodyShape: 'deep',
+    preferredAspect: [0.9, 1.8],
+    preferredCoverage: [0.22, 0.52],
+    shouldHaveSilver: true,
+    shouldHaveYellow: false,
+    shouldHaveRed: true,
+    shouldHaveSpots: false,
   },
 };
 
@@ -561,7 +541,7 @@ function scoreSpecies(species: FishSpecies, metrics: ImageMetrics) {
 
   if (profile.shouldHaveSpots) {
     score += metrics.gray > 0.06 ? 10 : -8;
-  } else if (metrics.gray > 0.22 && species.id !== 'lapu-lapu') {
+  } else if (metrics.gray > 0.22 && species.id !== 'grouper') {
     score -= 12;
   }
 
@@ -595,12 +575,9 @@ function scoreSpecies(species: FishSpecies, metrics: ImageMetrics) {
     score -= 10;
   }
 
-  if (species.id === 'bangus') {
-    if (metrics.silver > 0.18 && metrics.blue > 0.08 && metrics.aspectRatio > 1.8) {
-      score += 28;
-    }
-    if (metrics.yellow > 0.1) {
-      score -= 18;
+  if (species.id === 'skipjack-tuna') {
+    if (metrics.silver > 0.12 && metrics.blue > 0.08 && metrics.aspectRatio > 1.8) {
+      score += 24;
     }
   }
 
@@ -622,17 +599,17 @@ function scoreSpecies(species: FishSpecies, metrics: ImageMetrics) {
     }
   }
 
-  if (species.id === 'tilapia') {
-    if (metrics.green > 0.12 && metrics.silver < 0.18 && metrics.aspectRatio > 0.8 && metrics.aspectRatio < 1.8) {
-      score += 34;
-    }
-    if (metrics.red > 0.1 || metrics.yellow > 0.12) {
-      score -= 12;
-    }
+  if (
+    ['round-scad', 'eastern-little-tuna', 'narrow-barred-spanish-mackerel', 'blue-marlin'].includes(species.id) &&
+    metrics.silver > 0.12 &&
+    metrics.blue > 0.06 &&
+    metrics.aspectRatio > 1.6
+  ) {
+    score += 18;
   }
 
-  if (species.id === 'lapu-lapu') {
-    if (metrics.red > 0.08 && metrics.gray > 0.1 && metrics.aspectRatio > 0.7 && metrics.aspectRatio < 1.5) {
+  if (species.id === 'grouper') {
+    if (metrics.gray > 0.1 && metrics.aspectRatio > 0.7 && metrics.aspectRatio < 1.7) {
       score += 30;
     }
     if (metrics.silver > 0.2) {
@@ -640,27 +617,15 @@ function scoreSpecies(species: FishSpecies, metrics: ImageMetrics) {
     }
   }
 
-  if (species.id === 'talakitok') {
-    if (metrics.silver > 0.15 && metrics.blue > 0.08 && metrics.aspectRatio > 0.9 && metrics.aspectRatio < 2.2) {
+  if (species.id === 'emperor-fish') {
+    if (metrics.silver > 0.1 && metrics.aspectRatio > 0.8 && metrics.aspectRatio < 1.9) {
+      score += 18;
+    }
+  }
+
+  if (species.id === 'northern-red-snapper') {
+    if (metrics.red > 0.08 && metrics.aspectRatio > 0.8 && metrics.aspectRatio < 1.9) {
       score += 24;
-    }
-    if (metrics.red > 0.12) {
-      score -= 10;
-    }
-  }
-
-  if (species.id === 'pompano') {
-    if (metrics.yellow > 0.06 && metrics.silver > 0.12 && metrics.aspectRatio > 0.9 && metrics.aspectRatio < 1.8) {
-      score += 22;
-    }
-  }
-
-  if (species.id === 'butanding') {
-    if (metrics.aspectRatio > 0.7 && metrics.aspectRatio < 1.4 && metrics.objectCoverage > 0.26) {
-      score += 26;
-    }
-    if (metrics.silver > 0.2) {
-      score -= 12;
     }
   }
 
@@ -668,11 +633,7 @@ function scoreSpecies(species: FishSpecies, metrics: ImageMetrics) {
     score += 8;
   }
 
-  if (metrics.brightness < 60 && species.id === 'butanding') {
-    score += 8;
-  }
-
-  if (metrics.dark > 0.45 && species.id === 'lapu-lapu') {
+  if (metrics.dark > 0.45 && species.id === 'grouper') {
     score += 8;
   }
 
@@ -727,7 +688,9 @@ function findSpeciesForLabel(label: string): FishSpecies | undefined {
       ...(species.localNames ?? []),
       `${species.taxonomy.genus} ${species.taxonomy.species.replace(/^[A-Z]\.\s*/, '')}`,
     ];
-    return aliases.some((alias) => normalizeSpeciesLabel(alias) === normalizedLabel);
+    return aliases.some((alias) => normalizeSpeciesLabel(alias) === normalizedLabel) ||
+      (species.id === 'grouper' &&
+        (normalizedLabel.includes('grouper') || normalizedLabel.startsWith('epinephelus ')));
   });
 }
 

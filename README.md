@@ -2,6 +2,8 @@
 
 Fish Lens can use either its local visual heuristic or an experimental Hugging Face fish classifier. The classifier is opt-in and runs through a Netlify Function so its token is never exposed to the browser.
 
+The fish catalog is intentionally limited to these 10 fish: Skipjack Tuna, Yellowfin Tuna, Bigeye Tuna, Round Scad, Eastern Little Tuna (Kawakawa), Narrow-Barred Spanish Mackerel, Blue Marlin, Emperor Fish, Grouper, and Northern Red Snapper. Other species are not included in the explorer or local identification catalog.
+
 ## Enable the hosted model
 
 1. Deploy `paulprt/swin-fish-classification` as a Hugging Face Inference Endpoint. Its model card describes it as a baseline, notes class imbalance, and warns that it is not suitable out of the box. The endpoint must accept raw JPEG/PNG/WEBP request bodies and return JSON predictions shaped like `[{"label":"Chanos chanos","score":0.91}]` with scores from 0 to 1.
@@ -9,7 +11,7 @@ Fish Lens can use either its local visual heuristic or an experimental Hugging F
 3. Set `VITE_FISH_MODEL_API_ENABLED=true` at build time. The repository's `.env.example` shows this client-side feature flag; never put `HF_TOKEN` in a `VITE_` variable.
 4. Deploy the site and Netlify Function. If the hosted model fails or returns a species not in the app's database, the scan reports an error instead of silently substituting the local heuristic.
 
-When enabled, scan photos are sent to the configured inference endpoint. The displayed model score is not a verified probability of correct identification. The model covers 1,758 classes, while this app displays a smaller Philippine fish catalog; only matching labels are presented.
+When enabled, scan photos are sent to the configured inference endpoint. The displayed model score is not a verified probability of correct identification. The model covers 1,758 classes, while this app only presents the 10 fish in its catalog; predictions outside that list are not displayed as matches.
 
 ## Evaluate on labeled test images
 
