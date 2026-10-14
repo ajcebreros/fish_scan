@@ -13,7 +13,6 @@ const STAGES = [
 
 export function ScanningScreen({ imageData }: ScanningScreenProps) {
   const [stage, setStage] = useState(0);
-  const [scanLineY, setScanLineY] = useState(0);
 
   useEffect(() => {
     const stageInterval = setInterval(() => {
@@ -22,25 +21,7 @@ export function ScanningScreen({ imageData }: ScanningScreenProps) {
     return () => clearInterval(stageInterval);
   }, []);
 
-  useEffect(() => {
-    let frame: number;
-    let direction = 1;
-    let pos = 0;
-    const animate = () => {
-      pos += direction * 1.8;
-      if (pos > 100) {
-        pos = 100;
-        direction = -1;
-      } else if (pos < 0) {
-        pos = 0;
-        direction = 1;
-      }
-      setScanLineY(pos);
-      frame = requestAnimationFrame(animate);
-    };
-    frame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frame);
-  }, []);
+
 
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center px-4">
@@ -51,7 +32,7 @@ export function ScanningScreen({ imageData }: ScanningScreenProps) {
 
           <div
             className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_12px_2px_rgba(45,212,191,0.6)]"
-            style={{ top: `${scanLineY}%` }}
+            style={{ top: '50%' }}
           />
 
           <div className="absolute inset-0 pointer-events-none">
