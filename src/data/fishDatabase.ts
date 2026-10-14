@@ -40,7 +40,7 @@ export const FISH_DATABASE: FishSpecies[] = [
     id: 'yellowfin-tuna',
     commonName: 'Yellowfin Tuna',
     filipinoName: 'Tambao',
-    localNames: ['Yellowfin', 'Tamban', 'Tulingan'],
+    localNames: ['Yellowfin tuna'],
     scientificName: 'Thunnus albacares',
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Yellowfin_tuna_nurp.jpg/500px-Yellowfin_tuna_nurp.jpg',
     description:
@@ -75,7 +75,7 @@ export const FISH_DATABASE: FishSpecies[] = [
     id: 'skipjack-tuna',
     commonName: 'Skipjack Tuna',
     filipinoName: 'Gulyasan',
-    localNames: ['Round Scad', 'Skipjack'],
+    localNames: ['Skipjack'],
     scientificName: 'Katsuwonus pelamis',
     image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Katsuwonus_pelamis_Thailand.jpg/500px-Katsuwonus_pelamis_Thailand.jpg',
     description:

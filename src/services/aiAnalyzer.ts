@@ -248,7 +248,8 @@ function getImageMetrics(imageData: string): Promise<ImageMetrics> {
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
-      const MAX_SIZE = 96;
+      // Keep the heuristic scan lightweight on mobile devices; 64px is enough for coarse color/shape rules.
+      const MAX_SIZE = 64;
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
 
@@ -602,11 +603,27 @@ function scoreSpecies(species: FishSpecies, metrics: ImageMetrics) {
   }
 
   if (species.id === 'bigeye-tuna') {
-    if (metrics.yellow > 0.06 && metrics.blue > 0.08 && metrics.aspectRatio > 0.9 && metrics.aspectRatio < 2.1) {
-      score += 24;
+    // Yellow and blue pixels alone are not enough to identify a tuna.
+    // Penalize very slender silhouettes, which are more consistent with scad
+    // than with the deeper-bodied bigeye tuna profile.
+    if (metrics.yellow > 0.06 && metrics.blue > 0.08 && metrics.aspectRatio > 1.0 && metrics.aspectRatio < 1.9) {
+      score += 10;
+    }
+    if (metrics.aspectRatio > 2.3) {
+      score -= 28;
     }
     if (metrics.red > 0.12) {
       score -= 12;
+    }
+  }
+
+  if (species.id === 'galunggong') {
+    // Galunggong (round scad) is generally a small, slender, silvery fish.
+    if (metrics.silver > 0.12 && metrics.aspectRatio > 2.0) {
+      score += 22;
+    }
+    if (metrics.aspectRatio > 2.5 && metrics.yellow < 0.12) {
+      score += 8;
     }
   }
 
@@ -721,16 +738,39 @@ export async function analyzeFishImage(
   }));
 
   const sortedSpecies = scoredSpecies.sort((a, b) => b.score - a.score);
+
+  // Scad and trevally can look similar in these basic color/shape measurements.
+  // If talakitok only narrowly beats galunggong, prefer the known scad candidate
+  // but clearly mark the result as uncertain instead of presenting a high score.
+  const topCandidate = sortedSpecies[0];
+  const galunggongCandidate = sortedSpecies.find((entry) => entry.species.id === 'galunggong');
+  const ambiguousScadVsTrevally =
+    topCandidate?.species.id === 'talakitok' &&
+    galunggongCandidate !== undefined &&
+    topCandidate.score - galunggongCandidate.score <= 15;
+
+  if (ambiguousScadVsTrevally && galunggongCandidate) {
+    sortedSpecies.splice(sortedSpecies.indexOf(galunggongCandidate), 1);
+    sortedSpecies.unshift(galunggongCandidate);
+  }
+
   const primary = sortedSpecies[0].species;
   const rawConfidence = sortedSpecies[0].score;
   const secondBest = sortedSpecies[1]?.score ?? 0;
   const scoreGap = Math.max(0, rawConfidence - secondBest);
-  const confidence = clamp(
+  const calculatedConfidence = clamp(
     Math.round(rawConfidence - Math.max(0, 12 - scoreGap) * 1.3),
     0,
     100
   );
-  const isUncertain = confidence < UNCERTAINTY_THRESHOLD || metrics.objectCoverage < 0.1 || scoreGap < 10;
+  const confidence = ambiguousScadVsTrevally
+    ? Math.min(calculatedConfidence, 79)
+    : calculatedConfidence;
+  const isUncertain =
+    ambiguousScadVsTrevally ||
+    confidence < UNCERTAINTY_THRESHOLD ||
+    metrics.objectCoverage < 0.1 ||
+    scoreGap < 10;
 
   const estimatedLengthCm = estimateLengthCm(primary, metrics);
 

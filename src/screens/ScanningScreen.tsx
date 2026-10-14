@@ -1,46 +1,12 @@
-import { useEffect, useState } from 'react';
-import { ScanLine, Fish, Brain, Sparkles } from 'lucide-react';
+import { Fish } from 'lucide-react';
 
 interface ScanningScreenProps {
   imageData: string;
 }
 
-const STAGES = [
-  { icon: ScanLine, label: 'Scanning image...', detail: 'Analyzing visual features' },
-  { icon: Brain, label: 'Matching patterns...', detail: 'Comparing with species database' },
-  { icon: Sparkles, label: 'Finalizing results...', detail: 'Generating identification report' },
-];
+
 
 export function ScanningScreen({ imageData }: ScanningScreenProps) {
-  const [stage, setStage] = useState(0);
-  const [scanLineY, setScanLineY] = useState(0);
-
-  useEffect(() => {
-    const stageInterval = setInterval(() => {
-      setStage((prev) => Math.min(prev + 1, STAGES.length - 1));
-    }, 1050);
-    return () => clearInterval(stageInterval);
-  }, []);
-
-  useEffect(() => {
-    let frame: number;
-    let direction = 1;
-    let pos = 0;
-    const animate = () => {
-      pos += direction * 1.8;
-      if (pos > 100) {
-        pos = 100;
-        direction = -1;
-      } else if (pos < 0) {
-        pos = 0;
-        direction = 1;
-      }
-      setScanLineY(pos);
-      frame = requestAnimationFrame(animate);
-    };
-    frame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frame);
-  }, []);
 
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center px-4">
@@ -51,7 +17,7 @@ export function ScanningScreen({ imageData }: ScanningScreenProps) {
 
           <div
             className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-[0_0_12px_2px_rgba(45,212,191,0.6)]"
-            style={{ top: `${scanLineY}%` }}
+            style={{ top: '50%' }}
           />
 
           <div className="absolute inset-0 pointer-events-none">
@@ -105,75 +71,7 @@ export function ScanningScreen({ imageData }: ScanningScreenProps) {
           <p className="text-slate-400 text-sm">AI is examining visual characteristics</p>
         </div>
 
-        <div className="space-y-2.5 max-w-sm mx-auto">
-          {STAGES.map((s, i) => {
-            const Icon = s.icon;
-            const done = i < stage;
-            const active = i === stage;
-            return (
-              <div
-                key={i}
-                className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-500 ${
-                  active
-                    ? 'bg-teal-500/15 border border-teal-500/30'
-                    : done
-                    ? 'bg-slate-800/50 border border-slate-700/50'
-                    : 'bg-slate-800/20 border border-transparent'
-                }`}
-              >
-                <div
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
-                    active
-                      ? 'bg-teal-500/30'
-                      : done
-                      ? 'bg-teal-600/20'
-                      : 'bg-slate-700/30'
-                  }`}
-                >
-                  <Icon
-                    size={18}
-                    className={
-                      active
-                        ? 'text-teal-300 animate-pulse'
-                        : done
-                        ? 'text-teal-400'
-                        : 'text-slate-500'
-                    }
-                  />
-                </div>
-                <div className="flex-1 text-left">
-                  <p
-                    className={`text-sm font-medium ${
-                      active || done ? 'text-white' : 'text-slate-500'
-                    }`}
-                  >
-                    {s.label}
-                  </p>
-                  <p
-                    className={`text-xs ${
-                      active ? 'text-teal-300/80' : done ? 'text-slate-400' : 'text-slate-600'
-                    }`}
-                  >
-                    {s.detail}
-                  </p>
-                </div>
-                {done && (
-                  <div className="w-5 h-5 rounded-full bg-teal-500 flex items-center justify-center">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path
-                        d="M2 6L5 9L10 3"
-                        stroke="white"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <p className="text-center text-slate-400 text-sm">Checking the photo and matching visible features…</p>
       </div>
     </div>
   );
