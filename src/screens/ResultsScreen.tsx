@@ -65,10 +65,17 @@ function DetailSection({
 
 export function ResultsScreen({ result, onBack, onSpeciesSelect }: ResultsScreenProps) {
   const fish = result.primaryMatch;
+  const usesHostedModel = result.analysisMethod === 'huggingface-model';
   const consColor = getConservationColor(fish.conservationStatus);
   const estimatedLength = result.estimatedLengthCm ?? 0;
+  const estimatedWeightGrams = result.estimatedWeightGrams ?? 0;
   const estimatedStandardLength = estimatedLength > 0 ? estimatedLength * 0.817 : null;
   const localNames = fish.localNames?.join(', ') || fish.filipinoName;
+  const estimatedWeight = estimatedWeightGrams > 0
+    ? estimatedWeightGrams >= 1000
+      ? `${(estimatedWeightGrams / 1000).toFixed(2)} kg`
+      : `${estimatedWeightGrams} g`
+    : 'Unavailable';
   const fishBaseUrl = `https://www.fishbase.se/summary/${fish.scientificName.replace(/\s+/g, '-')}.html`;
   const bfarSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(
     `site:bfar.da.gov.ph ${fish.scientificName}`
@@ -109,7 +116,7 @@ export function ResultsScreen({ result, onBack, onSpeciesSelect }: ResultsScreen
                 <div className="space-y-3">
                   <div className="flex justify-between gap-4">
                     <span className="text-sm text-slate-500">English Name</span>
-                    <span className="text-sm font-semibold text-slate-800 text-right">{fish.commonName}</span>
+                    <span className="text-sm font-semibold text-slate-800 text-right">{localNames}</span>
                   </div>
                   <div className="flex justify-between gap-4">
                     <span className="text-sm text-slate-500">Scientific Name</span>
@@ -117,13 +124,20 @@ export function ResultsScreen({ result, onBack, onSpeciesSelect }: ResultsScreen
                   </div>
                   <div className="flex justify-between gap-4">
                     <span className="text-sm text-slate-500">Local Name</span>
-                    <span className="text-sm font-medium text-slate-700 text-right">{localNames}</span>
+                    <span className="text-sm font-medium text-slate-700 text-right">{fish.commonName}</span>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <span className="text-sm text-slate-500">Confidence</span>
+                    <span className="text-sm text-slate-500">
+                      {usesHostedModel ? 'Model score' : 'Match score'}
+                    </span>
                     <span className="text-sm font-bold text-teal-700">{result.confidence}%</span>
                   </div>
                 </div>
+                <p className="mt-3 text-[11px] text-slate-400">
+                  {usesHostedModel
+                    ? 'Experimental model score, not a verified probability of correct identification. This photo is sent to the configured model endpoint.'
+                    : 'Match score is a heuristic, not a verified probability of correct identification.'}
+                </p>
                 <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100">
                   <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-100">
                     {fish.category}
@@ -138,7 +152,7 @@ export function ResultsScreen({ result, onBack, onSpeciesSelect }: ResultsScreen
               <section className="bg-white rounded-2xl border border-slate-200/80 p-4">
                 <h2 className="flex items-center gap-2 text-xs font-bold tracking-[0.14em] text-teal-700 mb-4">
                   <Ruler size={16} />
-                  LENGTH ESTIMATION
+                  SIZE ESTIMATES
                 </h2>
                 <div className="space-y-3">
                   <div className="flex justify-between gap-4">
@@ -155,9 +169,13 @@ export function ResultsScreen({ result, onBack, onSpeciesSelect }: ResultsScreen
                         : 'Unavailable'}
                     </span>
                   </div>
+                  <div className="flex justify-between gap-4">
+                    <span className="text-sm text-slate-500">Estimated Weight (approx.)</span>
+                    <span className="text-sm font-bold text-slate-800">{estimatedWeight}</span>
+                  </div>
                 </div>
                 <p className="text-[11px] text-slate-400 mt-3">
-                  Standard length is an approximate estimate from total length.
+                  Size estimates are rough: length is inferred from the image, and weight uses a generic body-shape formula. Actual size and weight may differ significantly.
                 </p>
               </section>
 
@@ -214,8 +232,8 @@ export function ResultsScreen({ result, onBack, onSpeciesSelect }: ResultsScreen
                       className="w-12 h-12 rounded-lg object-cover"
                     />
                     <div className="flex-1 text-left">
-                      <p className="font-semibold text-slate-800 text-sm">{match.species.commonName}</p>
-                      <p className="text-xs text-slate-500">{match.species.filipinoName}</p>
+                      <p className="font-semibold text-slate-800 text-sm">{match.species.filipinoName}</p>
+                      <p className="text-xs text-slate-500">{match.species.commonName}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-bold text-amber-600">{match.confidence}%</p>
@@ -291,9 +309,9 @@ export function ResultsScreen({ result, onBack, onSpeciesSelect }: ResultsScreen
                       className="w-14 h-14 rounded-xl object-cover shrink-0"
                     />
                     <div className="flex-1">
-                      <p className="font-semibold text-slate-700 text-sm">{similar.commonName}</p>
+                      <p className="font-semibold text-slate-700 text-sm">{similar.filipinoName}</p>
                       <p className="text-xs text-slate-500">
-                        {similar.filipinoName} · <span className="italic">{similar.scientificName}</span>
+                        {similar.commonName} · <span className="italic">{similar.scientificName}</span>
                       </p>
                       <p className="text-xs text-slate-600 mt-1 leading-relaxed">{similar.difference}</p>
                     </div>
@@ -321,29 +339,31 @@ export function ResultsScreen({ result, onBack, onSpeciesSelect }: ResultsScreen
             </div>
           </DetailSection>
 
-          <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-2xl border border-teal-100 p-4">
-            <h3 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
-              <Eye size={16} className="text-teal-600" />
-              Why We Identified This Fish
-            </h3>
-            <div className="space-y-3">
-              {result.identificationClues.map((clue, i) => (
-                <div key={i} className="bg-white rounded-xl p-3 border border-teal-100/60">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-sm font-semibold text-slate-800">{clue.feature}</span>
-                    <span className="text-xs font-bold text-teal-600">{clue.confidence}%</span>
+          {result.identificationClues.length > 0 && (
+            <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-2xl border border-teal-100 p-4">
+              <h3 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                <Eye size={16} className="text-teal-600" />
+                Why We Identified This Fish
+              </h3>
+              <div className="space-y-3">
+                {result.identificationClues.map((clue, i) => (
+                  <div key={i} className="bg-white rounded-xl p-3 border border-teal-100/60">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-sm font-semibold text-slate-800">{clue.feature}</span>
+                      <span className="text-xs font-bold text-teal-600">{clue.confidence}%</span>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed">{clue.description}</p>
+                    <div className="mt-2 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-teal-400 to-cyan-500"
+                        style={{ width: `${clue.confidence}%` }}
+                      />
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-600 leading-relaxed">{clue.description}</p>
-                  <div className="mt-2 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-teal-400 to-cyan-500"
-                      style={{ width: `${clue.confidence}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex items-center gap-1.5 text-xs text-slate-400 pt-2 pb-4">
             <Clock size={12} />

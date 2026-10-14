@@ -94,8 +94,8 @@ export function SpeciesDetailScreen({ speciesId, onBack, onSpeciesSelect }: Spec
             <div className="bg-white rounded-3xl shadow-lg p-5 border border-slate-200/60">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h1 className="text-xl font-bold text-slate-800 leading-tight">{fish.commonName}</h1>
-                  <p className="text-teal-600 font-semibold text-sm mt-0.5">{fish.filipinoName}</p>
+                  <h1 className="text-xl font-bold text-slate-800 leading-tight">{fish.filipinoName}</h1>
+                  <p className="text-teal-600 font-semibold text-sm mt-0.5">{fish.commonName}</p>
                   <p className="text-slate-400 text-xs italic mt-0.5">{fish.scientificName}</p>
                 </div>
                 <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shrink-0 shadow-md">
@@ -181,9 +181,9 @@ export function SpeciesDetailScreen({ speciesId, onBack, onSpeciesSelect }: Spec
                     className="w-14 h-14 rounded-xl object-cover shrink-0"
                   />
                   <div className="flex-1">
-                    <p className="font-semibold text-slate-700 text-sm">{similar.commonName}</p>
+                    <p className="font-semibold text-slate-700 text-sm">{similar.filipinoName}</p>
                     <p className="text-xs text-slate-500">
-                      {similar.filipinoName} · <span className="italic">{similar.scientificName}</span>
+                      {similar.commonName} · <span className="italic">{similar.scientificName}</span>
                     </p>
                     <p className="text-xs text-slate-600 mt-1 leading-relaxed">{similar.difference}</p>
                   </div>

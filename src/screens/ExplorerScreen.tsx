@@ -170,8 +170,8 @@ export function ExplorerScreen({ onSpeciesSelect }: ExplorerScreenProps) {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-slate-800 text-sm truncate">{fish.commonName}</h3>
-                  <p className="text-xs text-teal-600 font-medium">{fish.filipinoName}</p>
+                  <h3 className="font-bold text-slate-800 text-sm truncate">{fish.filipinoName}</h3>
+                  <p className="text-xs text-teal-600 font-medium">{fish.commonName}</p>
                   <p className="text-xs text-slate-400 italic truncate">{fish.scientificName}</p>
                   <div className="flex items-center gap-1.5 mt-1">
                     <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">

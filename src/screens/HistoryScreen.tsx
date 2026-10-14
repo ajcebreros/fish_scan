@@ -103,14 +103,14 @@ export function HistoryScreen({ onSelectScan, onBack, refreshKey }: HistoryScree
                     <div className="flex-1 p-3 min-w-0">
                       <div className="flex items-center gap-1.5 mb-1">
                         <h3 className="font-bold text-slate-800 text-sm truncate">
-                          {scan.primaryMatch.commonName}
+                          {scan.primaryMatch.filipinoName}
                         </h3>
                         {scan.isUncertain && (
                           <AlertTriangle size={13} className="text-amber-500 shrink-0" />
                         )}
                       </div>
                       <p className="text-xs text-teal-600 font-medium">
-                        {scan.primaryMatch.filipinoName}
+                        {scan.primaryMatch.commonName}
                       </p>
                       <div className="flex items-center gap-2 mt-1.5">
                         <span
@@ -120,7 +120,7 @@ export function HistoryScreen({ onSelectScan, onBack, refreshKey }: HistoryScree
                               : 'bg-amber-50 text-amber-600'
                           }`}
                         >
-                          {scan.confidence}% confidence
+                          {scan.confidence}% {scan.analysisMethod === 'huggingface-model' ? 'model score' : 'match score'}
                         </span>
                         <span className="text-[10px] text-slate-400 flex items-center gap-0.5">
                           <Clock size={10} />

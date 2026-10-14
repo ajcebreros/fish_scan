@@ -68,7 +68,9 @@ export interface ScanResult {
   imageData: string; // base64 data URL
   primaryMatch: FishSpecies;
   confidence: number; // 0-100
+  analysisMethod?: 'local-heuristic' | 'huggingface-model';
   estimatedLengthCm?: number;
+  estimatedWeightGrams?: number;
   identificationClues: IdentificationClue[];
   isUncertain: boolean;
   possibleMatches: PossibleMatch[];

@@ -5,9 +5,10 @@ interface UploadScreenProps {
   onImageSelected: (imageData: string) => void;
   onBack: () => void;
   mode: 'upload' | 'camera';
+  submissionError?: string | null;
 }
 
-export function UploadScreen({ onImageSelected, onBack, mode }: UploadScreenProps) {
+export function UploadScreen({ onImageSelected, onBack, mode, submissionError }: UploadScreenProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -152,10 +153,10 @@ export function UploadScreen({ onImageSelected, onBack, mode }: UploadScreenProp
           </button>
         </div>
 
-        {error && (
+        {(error || submissionError) && (
           <div className="mb-4 flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl">
             <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
-            <p className="text-sm text-red-700">{error}</p>
+            <p className="text-sm text-red-700">{error || submissionError}</p>
           </div>
         )}
 

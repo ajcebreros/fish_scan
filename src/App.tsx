@@ -18,6 +18,7 @@ function App() {
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [selectedSpeciesId, setSelectedSpeciesId] = useState<string | null>(null);
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
+  const [scanError, setScanError] = useState<string | null>(null);
 
   const handleNavigate = useCallback((next: Screen) => {
     setScreen(next);
@@ -34,12 +35,18 @@ function App() {
   }, []);
 
   const handleImageSelected = useCallback(async (imageData: string) => {
+    setScanError(null);
     setScanImage(imageData);
     setScreen('scanning');
-    const result = await analyzeFishImage(imageData);
-    setScanResult(result);
-    saveScan(result);
-    setScreen('results');
+    try {
+      const result = await analyzeFishImage(imageData);
+      setScanResult(result);
+      saveScan(result);
+      setScreen('results');
+    } catch (error) {
+      setScanError(error instanceof Error ? error.message : 'Fish scan failed. Please try again.');
+      setScreen('upload');
+    }
   }, []);
 
   const handleSelectScan = useCallback((result: ScanResult) => {
@@ -78,6 +85,7 @@ function App() {
           onImageSelected={handleImageSelected}
           onBack={handleBackToHome}
           mode={uploadMode}
+          submissionError={scanError}
         />
       )}
 

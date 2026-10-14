@@ -7,6 +7,7 @@ import type {
 import { FISH_DATABASE } from '@/data/fishDatabase';
 
 const UNCERTAINTY_THRESHOLD = 82;
+const USE_HOSTED_FISH_MODEL = import.meta.env.VITE_FISH_MODEL_API_ENABLED === 'true';
 
 const SPECIES_PROFILES: Record<
   string,
@@ -469,6 +470,17 @@ function estimateLengthCm(species: FishSpecies, metrics: ImageMetrics): number {
   return clamp(Math.round(estimate), 8, Math.max(12, Math.round(speciesMaxCm * 0.9)));
 }
 
+function estimateWeightGrams(species: FishSpecies, lengthCm: number): number {
+  const bodyShape = species.physicalCharacteristics.bodyShape.toLowerCase();
+  const conditionFactor = bodyShape.includes('elongated')
+    ? 0.85
+    : bodyShape.includes('deep')
+    ? 1.5
+    : 1.1;
+
+  return Math.max(10, Math.round((conditionFactor * lengthCm ** 3 / 100) / 10) * 10);
+}
+
 function scoreSpecies(species: FishSpecies, metrics: ImageMetrics) {
   const profile = SPECIES_PROFILES[species.id] ?? {
     dominantColors: ['silver'],
@@ -690,6 +702,132 @@ export interface AnalyzeOptions {
   simulateUncertain?: boolean;
 }
 
+interface HostedPrediction {
+  label: string;
+  score: number;
+}
+
+function normalizeSpeciesLabel(label: string): string {
+  return label
+    .toLowerCase()
+    .replace(/[_-]/g, ' ')
+    .replace(/[^\w\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function findSpeciesForLabel(label: string): FishSpecies | undefined {
+  const normalizedLabel = normalizeSpeciesLabel(label);
+
+  return FISH_DATABASE.find((species) => {
+    const aliases = [
+      species.commonName,
+      species.filipinoName,
+      species.scientificName,
+      ...(species.localNames ?? []),
+      `${species.taxonomy.genus} ${species.taxonomy.species.replace(/^[A-Z]\.\s*/, '')}`,
+    ];
+    return aliases.some((alias) => normalizeSpeciesLabel(alias) === normalizedLabel);
+  });
+}
+
+async function analyzeWithHostedModel(imageData: string): Promise<ScanResult> {
+  const normalizedImage = await normalizeImageSource(imageData);
+  const metrics = await getImageMetrics(normalizedImage);
+  const modelImage = await prepareImageForModel(normalizedImage);
+  const response = await fetch('/.netlify/functions/analyze-fish', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imageData: modelImage }),
+  });
+
+  let payload: { error?: string; predictions?: HostedPrediction[] };
+  try {
+    payload = await response.json() as typeof payload;
+  } catch {
+    throw new Error('The fish model service returned an invalid response.');
+  }
+
+  if (!response.ok) {
+    throw new Error(payload.error || `The fish model service failed (HTTP ${response.status}).`);
+  }
+
+  if (!Array.isArray(payload.predictions) || payload.predictions.length === 0) {
+    throw new Error('The fish model did not return any species predictions.');
+  }
+
+  const rankedMatches = payload.predictions.flatMap((prediction) => {
+    const species = findSpeciesForLabel(prediction.label);
+    return species ? [{ species, score: Math.round(prediction.score * 100) }] : [];
+  });
+
+  if (rankedMatches.length === 0) {
+    throw new Error(
+      `The model's predictions do not match any species in this app. Its top result was "${payload.predictions[0].label}".`
+    );
+  }
+
+  const primary = rankedMatches[0];
+  const alternatives = rankedMatches.slice(1, 4);
+  const scoreGap = primary.score - (alternatives[0]?.score ?? 0);
+  const timestamp = Date.now();
+  const estimatedLengthCm = estimateLengthCm(primary.species, metrics);
+
+  return {
+    id: `scan-${timestamp}-${crypto.randomUUID().slice(0, 8)}`,
+    timestamp,
+    imageData,
+    primaryMatch: primary.species,
+    confidence: primary.score,
+    analysisMethod: 'huggingface-model',
+    estimatedLengthCm,
+    estimatedWeightGrams: estimateWeightGrams(primary.species, estimatedLengthCm),
+    identificationClues: [],
+    isUncertain: primary.score < UNCERTAINTY_THRESHOLD || scoreGap < 10,
+    possibleMatches: alternatives.map((match) => ({
+      species: match.species,
+      confidence: match.score,
+      reason: 'Returned as an alternate class by the experimental fish model.',
+    })),
+  };
+}
+
+async function prepareImageForModel(imageData: string): Promise<string> {
+  const normalizedImage = await normalizeImageSource(imageData);
+
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      const maxDimension = 1600;
+      const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      const context = canvas.getContext('2d');
+
+      if (!context) {
+        reject(new Error('Canvas rendering is not available in this browser.'));
+        return;
+      }
+
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          reject(new Error('Could not prepare the image for the fish model.'));
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error('Could not read the prepared fish image.'));
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg', 0.88);
+    };
+    image.onerror = () => reject(new Error('Could not load the fish image for model analysis.'));
+    image.src = normalizedImage;
+  });
+}
+
 export async function analyzeFishImage(
   imageData: string,
   options?: AnalyzeOptions
@@ -711,6 +849,10 @@ export async function analyzeFishImage(
       isUncertain: true,
       possibleMatches: [],
     };
+  }
+
+  if (USE_HOSTED_FISH_MODEL) {
+    return analyzeWithHostedModel(imageData);
   }
 
   const normalizedImage = await normalizeImageSource(imageData);
@@ -740,7 +882,9 @@ export async function analyzeFishImage(
     imageData,
     primaryMatch: primary,
     confidence,
+    analysisMethod: 'local-heuristic',
     estimatedLengthCm,
+    estimatedWeightGrams: estimateWeightGrams(primary, estimatedLengthCm),
     identificationClues: buildClues(primary, metrics),
     isUncertain,
     possibleMatches: createPossibleMatches(primary.id, sortedSpecies),
