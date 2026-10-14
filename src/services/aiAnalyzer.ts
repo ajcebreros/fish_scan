@@ -737,16 +737,39 @@ export async function analyzeFishImage(
   }));
 
   const sortedSpecies = scoredSpecies.sort((a, b) => b.score - a.score);
+
+  // Scad and trevally can look similar in these basic color/shape measurements.
+  // If talakitok only narrowly beats galunggong, prefer the known scad candidate
+  // but clearly mark the result as uncertain instead of presenting a high score.
+  const topCandidate = sortedSpecies[0];
+  const galunggongCandidate = sortedSpecies.find((entry) => entry.species.id === 'galunggong');
+  const ambiguousScadVsTrevally =
+    topCandidate?.species.id === 'talakitok' &&
+    galunggongCandidate !== undefined &&
+    topCandidate.score - galunggongCandidate.score <= 15;
+
+  if (ambiguousScadVsTrevally && galunggongCandidate) {
+    sortedSpecies.splice(sortedSpecies.indexOf(galunggongCandidate), 1);
+    sortedSpecies.unshift(galunggongCandidate);
+  }
+
   const primary = sortedSpecies[0].species;
   const rawConfidence = sortedSpecies[0].score;
   const secondBest = sortedSpecies[1]?.score ?? 0;
   const scoreGap = Math.max(0, rawConfidence - secondBest);
-  const confidence = clamp(
+  const calculatedConfidence = clamp(
     Math.round(rawConfidence - Math.max(0, 12 - scoreGap) * 1.3),
     0,
     100
   );
-  const isUncertain = confidence < UNCERTAINTY_THRESHOLD || metrics.objectCoverage < 0.1 || scoreGap < 10;
+  const confidence = ambiguousScadVsTrevally
+    ? Math.min(calculatedConfidence, 79)
+    : calculatedConfidence;
+  const isUncertain =
+    ambiguousScadVsTrevally ||
+    confidence < UNCERTAINTY_THRESHOLD ||
+    metrics.objectCoverage < 0.1 ||
+    scoreGap < 10;
 
   const estimatedLengthCm = estimateLengthCm(primary, metrics);
 
