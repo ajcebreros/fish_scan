@@ -602,11 +602,27 @@ function scoreSpecies(species: FishSpecies, metrics: ImageMetrics) {
   }
 
   if (species.id === 'bigeye-tuna') {
-    if (metrics.yellow > 0.06 && metrics.blue > 0.08 && metrics.aspectRatio > 0.9 && metrics.aspectRatio < 2.1) {
-      score += 24;
+    // Yellow and blue pixels alone are not enough to identify a tuna.
+    // Penalize very slender silhouettes, which are more consistent with scad
+    // than with the deeper-bodied bigeye tuna profile.
+    if (metrics.yellow > 0.06 && metrics.blue > 0.08 && metrics.aspectRatio > 1.0 && metrics.aspectRatio < 1.9) {
+      score += 10;
+    }
+    if (metrics.aspectRatio > 2.3) {
+      score -= 28;
     }
     if (metrics.red > 0.12) {
       score -= 12;
+    }
+  }
+
+  if (species.id === 'galunggong') {
+    // Galunggong (round scad) is generally a small, slender, silvery fish.
+    if (metrics.silver > 0.12 && metrics.aspectRatio > 2.0) {
+      score += 22;
+    }
+    if (metrics.aspectRatio > 2.5 && metrics.yellow < 0.12) {
+      score += 8;
     }
   }
 
