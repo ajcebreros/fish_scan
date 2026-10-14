@@ -248,7 +248,8 @@ function getImageMetrics(imageData: string): Promise<ImageMetrics> {
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
-      const MAX_SIZE = 96;
+      // Keep the heuristic scan lightweight on mobile devices; 64px is enough for coarse color/shape rules.
+      const MAX_SIZE = 64;
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
 
